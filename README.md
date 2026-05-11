@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Important update (will use local mock data instead mongodb for now, due to ME-CENTRAL-1 & ME-SOUTH-1 Regional Outage: Cluster Operations Affected)
 
-## Getting Started
+# Weave & Way 🧵
 
-First, run the development server:
+**Weave & Way** is a modern fabric catalog web application that allows users to explore a curated collection of textiles by category and detail. Admins can securely manage the fabric database using a protected dashboard with full CRUD capabilities.
 
-```bash
+## ![Project Image](./public/weave&way.webp)
+
+## ✨ Features
+
+- 🔎 Browse fabrics by **category** or **search**
+- 📄 View detailed fabric information with name, title, description, and image
+- 🔐 **Admin panel** with **authentication**
+- ✅ Admin can **Create, Read, Update, Delete** fabrics , upload image , upload json file or add individual fabric
+- ⚙️ RESTful API endpoints with **MongoDB + Mongoose**
+- 🖼️ Image support for each fabric with dynamic rendering
+
+---
+
+## 🧰 Tech Stack
+
+- **Frontend:** Next.js (App Router), Tailwind CSS
+- **Backend/API:** Next.js API Routes (RESTful structure)
+- **Database:** MongoDB with Mongoose ODM
+- **Auth:** Firebase Authentication or custom token-based protection for admin routes
+- **Deployment:** Vercel
+
+---
+
+🔐 Admin Panel
+The /admin route is protected and only accessible to authenticated users. Once logged in, admins can:
+
+✏️ Create new fabric entries
+
+📖 Read and filter existing fabrics
+
+🛠️ Update fabric data
+
+🗑️ Delete single or all fabrics
+
+📁 Upload mock data or JSON files
+
+📦 API Endpoints
+GET /api/fabrics – Get all fabrics
+
+POST /api/fabrics – Add a new fabric
+
+GET /api/fabrics/:id – Get fabric by ID
+
+PUT /api/fabrics/:id – Update fabric by ID
+
+DELETE /api/fabrics/:id – Delete fabric by ID
+
+GET /api/fabric-categories – Get all fabric categories
+
+🚀 Setup Instructions
+Clone the repo
+git clone https://github.com/shay122990/weave-way
+
+Install dependencies
+npm install
+
+Set up your .env file with:
+
+MONGODB_URI=your_mongodb_connection_string
+NEXT_PUBLIC_SITE_URL=your_deployment_url
+ADMIN_SECRET=your_admin_password_or_key
+JWT_SECRET=your_key
+
+Start the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🧑‍💻 Future Improvements
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🌍 Category pages with SEO
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🔍 Advanced search (material, color, pattern)
 
-## Learn More
+📦 User accounts for wishlist or saved fabrics
 
-To learn more about Next.js, take a look at the following resources:
+📬 Contact
+Feel free to reach out for feedback or collaboration:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🪡 License
+This project is licensed under the MIT License.

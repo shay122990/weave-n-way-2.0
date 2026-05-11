@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import FabricsClient from "./FabricsClient";
+import AdminClient from "./AdminClient";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +29,8 @@ async function getFabrics(): Promise<Fabric[]> {
   return result.data || [];
 }
 
-export default async function FabricsPage() {
+export default async function AdminPage() {
   const fabrics = await getFabrics();
 
-  return <FabricsClient fabrics={fabrics} />;
+  return <AdminClient initialFabrics={fabrics} />;
 }
