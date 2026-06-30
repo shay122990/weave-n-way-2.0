@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useMemo } from "react";
 
 interface Fabric {
-  _id: string;
+  id: string;
   name: string;
   image?: string;
 }
@@ -28,7 +28,7 @@ export default function MoodBoard({ fabrics, max = 6 }: MoodBoardProps) {
   const swatches = useMemo(() => {
     return fabrics
       .filter((fabric) => fabric.image)
-      .toSorted((a, b) => getScore(a._id) - getScore(b._id))
+      .toSorted((a, b) => getScore(a.id) - getScore(b.id))
       .slice(0, max);
   }, [fabrics, max]);
 
@@ -39,8 +39,8 @@ export default function MoodBoard({ fabrics, max = 6 }: MoodBoardProps) {
       <div className="flex gap-2 overflow-x-auto pb-1">
         {swatches.map((fabric) => (
           <div
-            key={fabric._id}
-            className="w-20 h-20 min-w-[5rem] overflow-hidden rounded border border-gray-300 shadow-sm"
+            key={fabric.id}
+            className="w-20 h-20 min-w-20 overflow-hidden rounded border border-gray-300 shadow-sm"
             title={fabric.name}
           >
             <Image
