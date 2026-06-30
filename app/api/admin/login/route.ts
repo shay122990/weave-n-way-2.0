@@ -24,6 +24,9 @@ export async function POST(req: Request) {
     expiresIn: "2h",
   });
 
+  // console.log("ENV password exists:", !!process.env.ADMIN_PASSWORD);
+  // console.log("JWT secret exists:", !!process.env.JWT_SECRET);
+
   const response = NextResponse.json({ success: true });
 
   response.cookies.set("admin-token", token, {

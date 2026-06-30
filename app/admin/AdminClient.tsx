@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Search from "./_components/Search";
+import FabricList from "./_components/FabricList";
+import AdminHeader from "./_components/AdminHeader";
+import FabricForm from "./_components/FabricForm";
+
 
 interface Fabric {
   _id: string;
@@ -145,119 +148,30 @@ export default function AdminClient({
     });
   }, [fabrics, searchTerm]);
 
-  return (
-    <main className="mx-auto max-w-7xl p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Admin Panel</h1>
+    return (
+  <main className="mx-auto max-w-7xl p-6">
+    <AdminHeader onLogout={handleLogout} />
 
-        <button
-          onClick={handleLogout}
-          className="rounded bg-red-600 px-4 py-2 text-white"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="grid gap-6 lg:grid-cols-3">
+      <FabricForm
+        form={form}
+        editing={!!editingId}
+        saving={saving}
+        onChange={handleChange}
+        onSubmit={handleAddOrUpdateFabric}
+        onCancel={resetForm}
+        onDeleteAll={handleDeleteAll}
+      />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-4 rounded bg-white p-4 shadow">
-          <h2 className="text-lg font-semibold">
-            {editingId ? "Edit Fabric" : "Add Fabric"}
-          </h2>
-
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Internal name (e.g. Cotton Green 1)"
-            className="w-full border p-2"
-          />
-
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            placeholder="Display title (e.g. Premium Cotton – Green)"
-            className="w-full border p-2"
-          />
-
-          <input
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            placeholder="Category (e.g. cotton, silk, linen)"
-            className="w-full border p-2"
-          />
-
-          <input
-            name="image"
-            value={form.image}
-            onChange={handleChange}
-            placeholder="/fabrics/image-name.jpg (must exist in /public/fabrics)"
-            className="w-full border p-2"
-          />
-
-          <input
-            name="color"
-            value={form.color}
-            onChange={handleChange}
-            placeholder="Color (e.g. mustard green, off-white)"
-            className="w-full border p-2"
-          />
-
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description"
-            className="w-full border p-2"
-          />
-
-          <button
-            onClick={handleAddOrUpdateFabric}
-            disabled={saving}
-            className="w-full bg-black text-white py-2"
-          >
-            {saving ? "Saving..." : editingId ? "Update" : "Add"}
-          </button>
-
-          {editingId && (
-            <button onClick={resetForm} className="w-full bg-gray-200 py-2">
-              Cancel
-            </button>
-          )}
-
-          <button
-            onClick={handleDeleteAll}
-            className="w-full bg-red-500 text-white py-2"
-          >
-            Delete All
-          </button>
-        </div>
-
-        <div className="lg:col-span-2 bg-white p-6 shadow">
-          <Search value={searchTerm} onChange={setSearchTerm} />
-
-          <ul className="space-y-4">
-            {filteredFabrics.map((fabric) => (
-              <li key={fabric._id} className="border-b pb-2">
-                <div className="flex justify-between">
-                  <div>
-                    <p className="font-semibold">{fabric.name}</p>
-                    <p className="text-sm">{fabric.title}</p>
-                  </div>
-
-                  <div className="space-x-2">
-                    <button onClick={() => handleEdit(fabric)}>Edit</button>
-                    <button onClick={() => handleDeleteFabric(fabric._id)}>
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </main>
-  );
+      <FabricList
+        fabrics={filteredFabrics}
+        searchTerm={searchTerm}
+        onSearch={setSearchTerm}
+        onEdit={handleEdit}
+        onDelete={handleDeleteFabric}
+      />
+    </div>
+  </main>
+);
+  
 }
