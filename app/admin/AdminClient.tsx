@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import FabricList from "./_components/FabricList";
 import AdminHeader from "./_components/AdminHeader";
 import FabricForm from "./_components/FabricForm";
-
+import { supabase } from "@/lib/supabase";
 
 interface Fabric {
-  _id: string;
+  id: string;
   name: string;
   title: string;
   category: string;
@@ -17,7 +17,7 @@ interface Fabric {
   color?: string;
 }
 
-type FabricForm = Omit<Fabric, "_id">;
+type FabricForm = Omit<Fabric, "id">;
 
 const emptyForm: FabricForm = {
   name: "",
@@ -38,6 +38,8 @@ export default function AdminClient({
   const [fabrics, setFabrics] = useState<Fabric[]>(initialFabrics);
   const [searchTerm, setSearchTerm] = useState("");
   const [form, setForm] = useState<FabricForm>(emptyForm);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // console.log(selectedFile);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -47,12 +49,25 @@ export default function AdminClient({
 
     setFabrics(result.data || []);
   };
+
+  const capitalizeWords = (value: string) =>
+    value
+      .trim()
+      .replace(/\s+/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
+    const { name, value } = e.target;
+
+    const fieldsToCapitalize = ["name", "title", "category", "color"];
+
     setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: fieldsToCapitalize.includes(name)
+        ? capitalizeWords(value)
+        : value,
     }));
   };
 
@@ -61,9 +76,55 @@ export default function AdminClient({
     setEditingId(null);
   };
 
+  // const handleAddOrUpdateFabric = async () => {
+  //   try {
+  //     setSaving(true);
+
+  //     const method = editingId ? "PUT" : "POST";
+  //     const url = editingId ? `/api/fabrics/${editingId}` : "/api/fabrics";
+
+  //     const res = await fetch(url, {
+  //       method,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(form),
+  //     });
+
+  //     if (!res.ok) throw new Error();
+
+  //     resetForm();
+  //     await fetchFabrics();
+  //   } catch {
+  //     alert("Failed to save fabric");
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+
   const handleAddOrUpdateFabric = async () => {
     try {
       setSaving(true);
+
+      let imageUrl = form.image;
+
+      if (selectedFile) {
+        const fileName = `${Date.now()}-${selectedFile.name}`;
+
+        const { error } = await supabase.storage
+          .from("fabric-images")
+          .upload(fileName, selectedFile);
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        const { data } = supabase.storage
+          .from("fabric-images")
+          .getPublicUrl(fileName);
+
+        imageUrl = data.publicUrl;
+      }
 
       const method = editingId ? "PUT" : "POST";
       const url = editingId ? `/api/fabrics/${editingId}` : "/api/fabrics";
@@ -73,15 +134,23 @@ export default function AdminClient({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          image: imageUrl,
+        }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to save fabric");
+      }
 
       resetForm();
+      setSelectedFile(null);
       await fetchFabrics();
-    } catch {
-      alert("Failed to save fabric");
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : "Failed to save fabric");
     } finally {
       setSaving(false);
     }
@@ -109,7 +178,7 @@ export default function AdminClient({
   };
 
   const handleEdit = (fabric: Fabric) => {
-    setEditingId(fabric._id);
+    setEditingId(fabric.id);
 
     setForm({
       name: fabric.name,
@@ -148,12 +217,12 @@ export default function AdminClient({
     });
   }, [fabrics, searchTerm]);
 
-    return (
-  <main className="mx-auto max-w-7xl p-6">
-    <AdminHeader onLogout={handleLogout} />
+  return (
+    <main className="mx-auto max-w-7xl p-6">
+      <AdminHeader onLogout={handleLogout} />
 
-    <div className="grid gap-6 lg:grid-cols-3">
-      <FabricForm
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* <FabricForm
         form={form}
         editing={!!editingId}
         saving={saving}
@@ -161,17 +230,26 @@ export default function AdminClient({
         onSubmit={handleAddOrUpdateFabric}
         onCancel={resetForm}
         onDeleteAll={handleDeleteAll}
-      />
+      /> */}
+        <FabricForm
+          form={form}
+          editing={!!editingId}
+          saving={saving}
+          onChange={handleChange}
+          onFileChange={setSelectedFile}
+          onSubmit={handleAddOrUpdateFabric}
+          onCancel={resetForm}
+          onDeleteAll={handleDeleteAll}
+        />
 
-      <FabricList
-        fabrics={filteredFabrics}
-        searchTerm={searchTerm}
-        onSearch={setSearchTerm}
-        onEdit={handleEdit}
-        onDelete={handleDeleteFabric}
-      />
-    </div>
-  </main>
-);
-  
+        <FabricList
+          fabrics={filteredFabrics}
+          searchTerm={searchTerm}
+          onSearch={setSearchTerm}
+          onEdit={handleEdit}
+          onDelete={handleDeleteFabric}
+        />
+      </div>
+    </main>
+  );
 }

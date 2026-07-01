@@ -7,7 +7,7 @@ import FabricZoomImage from "../_components/FabricZoomImage";
 export const dynamic = "force-dynamic";
 
 interface Fabric {
-  _id: string;
+  id: string;
   name: string;
   title: string;
   category: string;
@@ -27,7 +27,9 @@ async function getFabric(id: string): Promise<Fabric | null> {
 
   if (!res.ok) return null;
 
-  return res.json();
+  const result = await res.json();
+
+  return result.data ?? null;
 }
 
 export default async function FabricDetailsPage({

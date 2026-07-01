@@ -2,7 +2,7 @@ import Search from "./Search";
 import FabricItem from "./FabricItem";
 
 interface Fabric {
-  _id: string;
+  id: string;
   name: string;
   title: string;
   category: string;
@@ -33,7 +33,7 @@ export default function FabricList({
       <ul className="space-y-4">
         {fabrics.map((fabric) => (
           <FabricItem
-            key={fabric._id}
+            key={fabric.id}
             fabric={fabric}
             onEdit={onEdit}
             onDelete={onDelete}

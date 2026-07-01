@@ -1,5 +1,5 @@
 interface Fabric {
-  _id: string;
+  id: string;
   name: string;
   title: string;
   category: string;
@@ -30,7 +30,7 @@ export default function FabricItem({
         <div className="space-x-2">
           <button onClick={() => onEdit(fabric)}>Edit</button>
 
-          <button onClick={() => onDelete(fabric._id)}>Delete</button>
+          <button onClick={() => onDelete(fabric.id)}>Delete</button>
         </div>
       </div>
     </li>

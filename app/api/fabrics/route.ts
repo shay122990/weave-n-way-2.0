@@ -80,3 +80,49 @@ export async function GET() {
     data,
   });
 }
+
+// CREATE fabric
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const { data, error } = await supabase
+      .from("fabrics")
+      .insert({
+        name: body.name || "",
+        title: body.title || "",
+        category: body.category || "",
+        description: body.description || "",
+        image: body.image || "",
+        color: body.color || "",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: error.message,
+        },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        data,
+      },
+      { status: 201 },
+    );
+  } catch {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Invalid request body",
+      },
+      { status: 400 },
+    );
+  }
+}

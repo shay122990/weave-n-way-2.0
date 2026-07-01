@@ -17,6 +17,7 @@ interface FabricFormProps {
   onSubmit: () => void;
   onCancel: () => void;
   onDeleteAll: () => void;
+  onFileChange: (file: File | null) => void;
 }
 
 export default function FabricForm({
@@ -27,42 +28,46 @@ export default function FabricForm({
   onSubmit,
   onCancel,
   onDeleteAll,
+  onFileChange,
 }: FabricFormProps) {
   return (
     <div className="space-y-4 rounded bg-white p-4 shadow">
       <h2 className="text-lg font-semibold">
         {editing ? "Edit Fabric" : "Add Fabric"}
       </h2>
-
       <input
         name="name"
         value={form.name}
         onChange={onChange}
-        placeholder="Internal name (e.g. Cotton Green 1)"
+        placeholder="e.g. Red Silk"
         className="w-full border p-2"
       />
-
       <input
         name="title"
         value={form.title}
         onChange={onChange}
-        placeholder="Display title"
+        placeholder="e.g. Premium Red Silk Fabric"
         className="w-full border p-2"
       />
-
       <input
         name="category"
         value={form.category}
         onChange={onChange}
-        placeholder="Category"
+        placeholder="e.g. Silk"
         className="w-full border p-2"
       />
-
-      <input
+      {/* keep for when supabase disconnected "incase" */}
+      {/* <input
         name="image"
         value={form.image}
         onChange={onChange}
         placeholder="/fabrics/image.jpg"
+        className="w-full border p-2"
+      /> */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
         className="w-full border p-2"
       />
 
@@ -70,18 +75,16 @@ export default function FabricForm({
         name="color"
         value={form.color}
         onChange={onChange}
-        placeholder="Color"
+        placeholder="e.g. Burgundy"
         className="w-full border p-2"
       />
-
       <textarea
         name="description"
         value={form.description}
         onChange={onChange}
-        placeholder="Description"
+        placeholder="Brief description of the fabric"
         className="w-full border p-2"
       />
-
       <button
         onClick={onSubmit}
         disabled={saving}
@@ -89,13 +92,11 @@ export default function FabricForm({
       >
         {saving ? "Saving..." : editing ? "Update" : "Add"}
       </button>
-
       {editing && (
         <button onClick={onCancel} className="w-full bg-gray-200 py-2">
           Cancel
         </button>
       )}
-
       <button
         onClick={onDeleteAll}
         className="w-full bg-red-500 py-2 text-white"

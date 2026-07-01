@@ -8,7 +8,7 @@ import FabricCard from "./_components/FabricCard";
 import MoodBoard from "./_components/MoodBoard";
 
 interface Fabric {
-  _id: string;
+  id: string;
   name: string;
   title: string;
   category: string;
@@ -32,8 +32,8 @@ export default function FabricsClient({ fabrics }: { fabrics: Fabric[] }) {
 
   const categories = useMemo(() => {
     const allCategories = Array.from(
-      new Set(fabrics.map((fabric) => fabric.category)),
-    );
+      new Set(fabrics.map((fabric) => fabric.category.trim())),
+    ).sort();
 
     return ["all", ...allCategories];
   }, [fabrics]);
@@ -213,7 +213,7 @@ export default function FabricsClient({ fabrics }: { fabrics: Fabric[] }) {
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {paginated.map((fabric) => (
-              <FabricCard key={fabric._id} {...fabric} />
+              <FabricCard key={fabric.id} {...fabric} />
             ))}
           </div>
 

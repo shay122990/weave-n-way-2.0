@@ -14,7 +14,7 @@ export default function FabricZoomImage({
 
   return (
     <div
-      className="relative w-full lg:max-w-[500px] lg:h-[500px] mx-auto overflow-hidden rounded"
+      className="relative w-full lg:max-w-125 lg:h-125 mx-auto overflow-hidden rounded"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
