@@ -1,4 +1,4 @@
-### Important update (will use local mock data instead mongodb for now, due to ME-CENTRAL-1 & ME-SOUTH-1 Regional Outage: Cluster Operations Affected)
+### Important update moved local data to supabase 
 
 # Weave & Way 🧵
 
