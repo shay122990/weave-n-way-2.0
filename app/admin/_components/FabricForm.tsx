@@ -39,14 +39,14 @@ export default function FabricForm({
         name="name"
         value={form.name}
         onChange={onChange}
-        placeholder="e.g. Red Silk"
+        placeholder="e.g. Fabric Name 12"
         className="w-full border p-2"
       />
       <input
         name="title"
         value={form.title}
         onChange={onChange}
-        placeholder="e.g. Premium Red Silk Fabric"
+        placeholder="e.g. Silk Fabric #12"
         className="w-full border p-2"
       />
       <input
@@ -56,14 +56,7 @@ export default function FabricForm({
         placeholder="e.g. Silk"
         className="w-full border p-2"
       />
-      {/* keep for when supabase disconnected "incase" */}
-      {/* <input
-        name="image"
-        value={form.image}
-        onChange={onChange}
-        placeholder="/fabrics/image.jpg"
-        className="w-full border p-2"
-      /> */}
+
       <input
         type="file"
         accept="image/*"

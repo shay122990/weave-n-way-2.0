@@ -55,13 +55,8 @@
 //   return Response.json(fabric);
 // }
 
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SECRET_KEY!,
-);
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 // GET one fabric
 export async function GET(
@@ -70,7 +65,7 @@ export async function GET(
 ) {
   const { id } = await context.params;
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("fabrics")
     .select("*")
     .eq("id", id)
@@ -94,34 +89,115 @@ export async function PUT(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await context.params;
-  const body = await request.json();
+  try {
+    const { id } = await context.params;
 
-  const { data, error } = await supabase
-    .from("fabrics")
-    .update({
-      name: body.name,
-      title: body.title,
-      category: body.category,
-      description: body.description,
-      image: body.image,
-      color: body.color,
-    })
-    .eq("id", id)
-    .select()
-    .single();
+    const formData = await request.formData();
 
-  if (error) {
+    const name = formData.get("name")?.toString().trim() ?? "";
+    const title = formData.get("title")?.toString().trim() ?? "";
+    const category = formData.get("category")?.toString().trim() ?? "";
+    const description = formData.get("description")?.toString().trim() ?? "";
+    const color = formData.get("color")?.toString().trim() ?? "";
+
+    if (!name || !title || !category || !description) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please fill in all required fields.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from("fabrics")
+      .select("image")
+      .eq("id", id)
+      .single();
+
+    if (existingError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: existingError.message,
+        },
+        { status: 404 },
+      );
+    }
+
+    let image = existing.image;
+
+    const file = formData.get("image");
+
+    if (file instanceof File && file.size > 0) {
+      const fileName = `${Date.now()}-${file.name}`;
+
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from("fabric-images")
+        .upload(fileName, file);
+
+      if (uploadError) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: uploadError.message,
+          },
+          { status: 500 },
+        );
+      }
+
+      image = supabaseAdmin.storage.from("fabric-images").getPublicUrl(fileName)
+        .data.publicUrl;
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("fabrics")
+      .update({
+        name,
+        title,
+        category,
+        description,
+        color,
+        image,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: error.message,
+        },
+        { status: 500 },
+      );
+    }
+
+    // Delete old image only after successful update
+    if (file instanceof File && file.size > 0 && existing.image) {
+      const oldPath = existing.image.split("/fabric-images/")[1];
+
+      if (oldPath) {
+        await supabaseAdmin.storage.from("fabric-images").remove([oldPath]);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
     return NextResponse.json(
-      { success: false, message: error.message },
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Failed to update fabric",
+      },
       { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    success: true,
-    data,
-  });
 }
 
 // DELETE fabric
@@ -129,18 +205,62 @@ export async function DELETE(
   request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await context.params;
+  try {
+    const { id } = await context.params;
 
-  const { error } = await supabase.from("fabrics").delete().eq("id", id);
+    // Get current image URL
+    const { data: fabric, error: fetchError } = await supabaseAdmin
+      .from("fabrics")
+      .select("image")
+      .eq("id", id)
+      .single();
 
-  if (error) {
+    if (fetchError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: fetchError.message,
+        },
+        { status: 404 },
+      );
+    }
+
+    // Delete database row
+    const { error: deleteError } = await supabaseAdmin
+      .from("fabrics")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: deleteError.message,
+        },
+        { status: 500 },
+      );
+    }
+
+    // Delete image from Storage
+    if (fabric.image) {
+      const path = fabric.image.split("/fabric-images/")[1];
+
+      if (path) {
+        await supabaseAdmin.storage.from("fabric-images").remove([path]);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+    });
+  } catch (error) {
     return NextResponse.json(
-      { success: false, message: error.message },
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Failed to delete fabric",
+      },
       { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    success: true,
-  });
 }

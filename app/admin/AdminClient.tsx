@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import FabricList from "./_components/FabricList";
 import AdminHeader from "./_components/AdminHeader";
 import FabricForm from "./_components/FabricForm";
-import { supabase } from "@/lib/supabase";
 
 interface Fabric {
   id: string;
@@ -51,10 +50,7 @@ export default function AdminClient({
   };
 
   const capitalizeWords = (value: string) =>
-    value
-      .trim()
-      .replace(/\s+/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+    value.replace(/\b\w/g, (char) => char.toUpperCase());
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -76,81 +72,52 @@ export default function AdminClient({
     setEditingId(null);
   };
 
-  // const handleAddOrUpdateFabric = async () => {
-  //   try {
-  //     setSaving(true);
-
-  //     const method = editingId ? "PUT" : "POST";
-  //     const url = editingId ? `/api/fabrics/${editingId}` : "/api/fabrics";
-
-  //     const res = await fetch(url, {
-  //       method,
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(form),
-  //     });
-
-  //     if (!res.ok) throw new Error();
-
-  //     resetForm();
-  //     await fetchFabrics();
-  //   } catch {
-  //     alert("Failed to save fabric");
-  //   } finally {
-  //     setSaving(false);
-  //   }
-  // };
-
   const handleAddOrUpdateFabric = async () => {
     try {
       setSaving(true);
 
-      let imageUrl = form.image;
+      const cleanedForm = {
+        ...form,
+        name: form.name.trim().replace(/\s+/g, " "),
+        title: form.title.trim().replace(/\s+/g, " "),
+        category: form.category.trim().replace(/\s+/g, " "),
+        color: form.color?.trim().replace(/\s+/g, " "),
+        description: form.description.trim(),
+      };
 
-      if (selectedFile) {
-        const fileName = `${Date.now()}-${selectedFile.name}`;
+      const formData = new FormData();
 
-        const { error } = await supabase.storage
-          .from("fabric-images")
-          .upload(fileName, selectedFile);
+      formData.append("name", cleanedForm.name);
+      formData.append("title", cleanedForm.title);
+      formData.append("category", cleanedForm.category);
+      formData.append("description", cleanedForm.description);
 
-        if (error) {
-          throw new Error(error.message);
-        }
-
-        const { data } = supabase.storage
-          .from("fabric-images")
-          .getPublicUrl(fileName);
-
-        imageUrl = data.publicUrl;
+      if (cleanedForm.color) {
+        formData.append("color", cleanedForm.color);
       }
 
-      const method = editingId ? "PUT" : "POST";
-      const url = editingId ? `/api/fabrics/${editingId}` : "/api/fabrics";
+      if (selectedFile) {
+        formData.append("image", selectedFile);
+      }
 
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        editingId ? `/api/fabrics/${editingId}` : "/api/fabrics",
+        {
+          method: editingId ? "PUT" : "POST",
+          body: formData,
         },
-        body: JSON.stringify({
-          ...form,
-          image: imageUrl,
-        }),
-      });
+      );
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Failed to save fabric");
+        const error = await res.json();
+        throw new Error(error.message);
       }
 
       resetForm();
       setSelectedFile(null);
       await fetchFabrics();
-    } catch (error) {
-      console.error(error);
-      alert(error instanceof Error ? error.message : "Failed to save fabric");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -159,11 +126,16 @@ export default function AdminClient({
   const handleDeleteFabric = async (id: string) => {
     if (!confirm("Delete this fabric?")) return;
 
-    await fetch(`/api/fabrics/${id}`, {
+    const res = await fetch(`/api/fabrics/${id}`, {
       method: "DELETE",
     });
 
-    fetchFabrics();
+    if (!res.ok) {
+      alert("Failed to delete");
+      return;
+    }
+
+    await fetchFabrics();
   };
 
   const handleDeleteAll = async () => {
