@@ -19,10 +19,10 @@ export default function FabricList({
   onDelete,
 }: FabricListProps) {
   return (
-    <div className="bg-white p-6 shadow lg:col-span-2">
+    <div className="bg-white p-6 shadow lg:col-span-2 flex flex-col max-h-[85vh]">
       <Search value={searchTerm} onChange={onSearch} />
 
-      <ul className="space-y-4">
+      <ul className="mt-4 flex-1 overflow-y-auto space-y-4 pr-2">
         {fabrics.map((fabric) => (
           <FabricItem
             key={fabric.id}

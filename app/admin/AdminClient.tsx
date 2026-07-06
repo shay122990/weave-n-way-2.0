@@ -32,6 +32,9 @@ export default function AdminClient({
   // console.log(selectedFile);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof FabricForm, string>>
+  >({});
 
   const fetchFabrics = async () => {
     const res = await fetch("/api/fabrics", { cache: "no-store" });
@@ -56,6 +59,11 @@ export default function AdminClient({
         ? capitalizeWords(value)
         : value,
     }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
   const resetForm = () => {
@@ -63,7 +71,32 @@ export default function AdminClient({
     setEditingId(null);
   };
 
+  const validateForm = () => {
+    const newErrors: Partial<Record<keyof FabricForm, string>> = {};
+
+    if (!form.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!form.title.trim()) {
+      newErrors.title = "Title is required";
+    }
+
+    if (!form.category.trim()) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!form.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleAddOrUpdateFabric = async () => {
+    if (!validateForm()) return;
     try {
       setSaving(true);
 
@@ -185,15 +218,6 @@ export default function AdminClient({
       <AdminHeader onLogout={handleLogout} />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* <FabricForm
-        form={form}
-        editing={!!editingId}
-        saving={saving}
-        onChange={handleChange}
-        onSubmit={handleAddOrUpdateFabric}
-        onCancel={resetForm}
-        onDeleteAll={handleDeleteAll}
-      /> */}
         <FabricForm
           form={form}
           editing={!!editingId}
@@ -203,6 +227,7 @@ export default function AdminClient({
           onSubmit={handleAddOrUpdateFabric}
           onCancel={resetForm}
           onDeleteAll={handleDeleteAll}
+          errors={errors}
         />
 
         <FabricList
