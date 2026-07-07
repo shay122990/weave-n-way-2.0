@@ -1,4 +1,6 @@
 import type { ChangeEvent } from "react";
+import InputField from "./InputField";
+import ImageField from "./ImageField";
 
 interface FabricFormData {
   name: string;
@@ -38,90 +40,47 @@ export default function FabricForm({
         {editing ? "Edit Fabric" : "Add Fabric"}
       </h2>
 
-      <div>
-        <input
-          name="name"
-          value={form.name}
-          onChange={onChange}
-          placeholder="e.g. Fabric Name"
-          className={`w-full rounded border p-2 ${
-            errors.name ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-        )}
-      </div>
+      <InputField
+        name="name"
+        value={form.name}
+        placeholder="e.g. Silk"
+        error={errors.name}
+        onChange={onChange}
+      />
 
-      <div>
-        <input
-          name="title"
-          value={form.title}
-          onChange={onChange}
-          placeholder="e.g. Silk Fabric"
-          className={`w-full rounded border p-2 ${
-            errors.title ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.title && (
-          <p className="mt-1 text-sm text-red-500">{errors.title}</p>
-        )}
-      </div>
+      <InputField
+        name="title"
+        value={form.title}
+        placeholder="e.g. Silk Fabric #12"
+        error={errors.title}
+        onChange={onChange}
+      />
 
-      <div>
-        <input
-          name="category"
-          value={form.category}
-          onChange={onChange}
-          placeholder="e.g. Silk"
-          className={`w-full rounded border p-2 ${
-            errors.category ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.category && (
-          <p className="mt-1 text-sm text-red-500">{errors.category}</p>
-        )}
-      </div>
+      <InputField
+        name="category"
+        value={form.category}
+        placeholder="e.g. Silk"
+        error={errors.category}
+        onChange={onChange}
+      />
 
-      <div>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
-          className={`w-full rounded border p-2 ${
-            errors.image ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.image && (
-          <p className="mt-1 text-sm text-red-500">{errors.image}</p>
-        )}
-      </div>
+      <ImageField error={errors.image} onFileChange={onFileChange} />
 
-      <div>
-        <input
-          name="color"
-          value={form.color}
-          onChange={onChange}
-          placeholder="e.g. Burgundy"
-          className="w-full rounded border border-gray-300 p-2"
-        />
-      </div>
+      <InputField
+        name="color"
+        value={form.color ?? ""}
+        placeholder="e.g. Burgundy"
+        onChange={onChange}
+      />
 
-      <div>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={onChange}
-          placeholder="Brief description of the fabric"
-          rows={5}
-          className={`w-full rounded border p-2 ${
-            errors.description ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.description && (
-          <p className="mt-1 text-sm text-red-500">{errors.description}</p>
-        )}
-      </div>
+      <InputField
+        textarea
+        name="description"
+        value={form.description}
+        placeholder="Brief description of the fabric"
+        error={errors.description}
+        onChange={onChange}
+      />
 
       <button
         onClick={onSubmit}
