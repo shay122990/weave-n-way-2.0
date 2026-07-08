@@ -217,7 +217,7 @@ export default function AdminClient({
     <main className="mx-auto max-w-7xl p-6">
       <AdminHeader onLogout={handleLogout} />
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3 items-stretch">
         <FabricForm
           form={form}
           editing={!!editingId}
@@ -229,7 +229,6 @@ export default function AdminClient({
           onDeleteAll={handleDeleteAll}
           errors={errors}
         />
-
         <FabricList
           fabrics={filteredFabrics}
           searchTerm={searchTerm}

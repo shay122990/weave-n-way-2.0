@@ -19,9 +19,8 @@ export default function FabricList({
   onDelete,
 }: FabricListProps) {
   return (
-    <div className="bg-white p-6 shadow lg:col-span-2 flex flex-col max-h-[85vh]">
+    <div className="flex h-[85vh] flex-col bg-white p-6 shadow lg:col-span-2">
       <Search value={searchTerm} onChange={onSearch} />
-
       <ul className="mt-4 flex-1 overflow-y-auto space-y-4 pr-2">
         {fabrics.map((fabric) => (
           <FabricItem
