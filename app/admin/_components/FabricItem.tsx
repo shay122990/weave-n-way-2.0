@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { useState } from "react";
 import type { Fabric } from "../../types/fabric";
+import Modal from "./Modal";
 
 interface FabricItemProps {
   fabric: Fabric;
@@ -12,6 +14,8 @@ export default function FabricItem({
   onEdit,
   onDelete,
 }: FabricItemProps) {
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <li className="rounded-lg border border-gray-200 p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
@@ -58,13 +62,25 @@ export default function FabricItem({
           </button>
 
           <button
-            onClick={() => onDelete(fabric.id)}
+            onClick={() => setShowModal(true)}
             className="rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
           >
             Delete
           </button>
         </div>
       </div>
+      <Modal
+        open={showModal}
+        title="Delete Fabric?"
+        message={`Are you sure you want to delete "${fabric.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onCancel={() => setShowModal(false)}
+        onConfirm={() => {
+          onDelete(fabric.id);
+          setShowModal(false);
+        }}
+      />
     </li>
   );
 }

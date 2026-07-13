@@ -1,6 +1,7 @@
-import type { ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import InputField from "./InputField";
 import ImageField from "./ImageField";
+import Modal from "./Modal";
 
 interface FabricFormData {
   name: string;
@@ -34,6 +35,8 @@ export default function FabricForm({
   onDeleteAll,
   onFileChange,
 }: FabricFormProps) {
+  const [modal, setModal] = useState<"submit" | "delete" | null>(null);
+
   return (
     <div className="flex md:h-[85vh] flex-col rounded bg-white p-4 shadow">
       <h2 className="text-lg font-semibold">
@@ -79,7 +82,7 @@ export default function FabricForm({
       </div>
       <div className="mt-4 space-y-2">
         <button
-          onClick={onSubmit}
+          onClick={() => setModal("submit")}
           disabled={saving}
           className="w-full rounded bg-black py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
@@ -94,13 +97,44 @@ export default function FabricForm({
           </button>
         ) : (
           <button
-            onClick={onDeleteAll}
+            onClick={() => setModal("delete")}
             className="w-full rounded bg-red-600 py-2 text-white hover:bg-red-700"
           >
             Delete All Fabrics
           </button>
         )}
       </div>
+      <Modal
+        open={modal !== null}
+        title={
+          modal === "submit"
+            ? editing
+              ? "Update Fabric?"
+              : "Add Fabric?"
+            : "Delete All Fabrics?"
+        }
+        message={
+          modal === "submit"
+            ? editing
+              ? "Are you sure you want to update this fabric?"
+              : "Are you sure you want to add this fabric?"
+            : "This will permanently delete every fabric. This action cannot be undone."
+        }
+        confirmText={
+          modal === "submit" ? (editing ? "Update" : "Add") : "Delete All"
+        }
+        loading={saving}
+        onCancel={() => setModal(null)}
+        onConfirm={() => {
+          if (modal === "submit") {
+            onSubmit();
+          } else if (modal === "delete") {
+            onDeleteAll();
+          }
+
+          setModal(null);
+        }}
+      />
     </div>
   );
 }
