@@ -15,9 +15,8 @@ export default function FabricsClient({ fabrics }: { fabrics: Fabric[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialCategory = searchParams.get("category") || "all";
+  const category = searchParams.get("category") || "all";
 
-  const [category, setCategory] = useState(initialCategory);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
@@ -34,7 +33,11 @@ export default function FabricsClient({ fabrics }: { fabrics: Fabric[] }) {
     let result = fabrics;
 
     if (category !== "all") {
-      result = result.filter((fabric) => fabric.category === category);
+      result = result.filter(
+        (fabric) =>
+          fabric.category.trim().toLowerCase() ===
+          category.trim().toLowerCase(),
+      );
     }
 
     if (searchTerm.trim()) {
@@ -59,11 +62,15 @@ export default function FabricsClient({ fabrics }: { fabrics: Fabric[] }) {
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
   const handleCategoryChange = (cat: string) => {
-    setCategory(cat);
     setCurrentPage(1);
 
     const params = new URLSearchParams(searchParams.toString());
-    params.set("category", cat);
+
+    if (cat === "all") {
+      params.delete("category");
+    } else {
+      params.set("category", cat);
+    }
 
     router.replace(`/fabrics?${params.toString()}`, { scroll: false });
   };

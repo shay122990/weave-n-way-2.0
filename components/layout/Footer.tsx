@@ -15,23 +15,14 @@ const socialLinks = [
   { name: "Pinterest", href: "#", icon: <FaPinterest size={24} /> },
 ];
 
+const popularFabrics = [
+  { label: "Cotton", value: "cotton" },
+  { label: "Chiffon", value: "chiffon" },
+  { label: "Linen", value: "linen" },
+  { label: "Silk", value: "silk" },
+  { label: "Velvet", value: "velvet" },
+];
 export default function Footer() {
-  // const [categories, setCategories] = useState<string[]>([]);
-
-  // useEffect(() => {
-  //   const fetchCategories = async () => {
-  //     try {
-  //       const res = await fetch("/api/fabric-categories");
-  //       const data = await res.json();
-  //       setCategories(data);
-  //     } catch (err) {
-  //       console.error("Failed to fetch categories:", err);
-  //     }
-  //   };
-
-  //   fetchCategories();
-  // }, []);
-
   return (
     <footer className="bg-black text-white py-10 px-6 mt-20">
       <div className="mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
@@ -48,7 +39,7 @@ export default function Footer() {
               <li key={link.name}>
                 <Link
                   href={link.href}
-                  className="hover:text-green-900 transition"
+                  className="hover:text-mauve-500 transition"
                 >
                   {link.name}
                 </Link>
@@ -58,19 +49,18 @@ export default function Footer() {
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Popular Fabrics</h3>
-          {/* <ul className="space-y-1 text-gray-100">
-            {categories.map((category) => (
-              <li key={category}>
+          <ul className="space-y-1 text-gray-100">
+            {popularFabrics.map((fabric) => (
+              <li key={fabric.value}>
                 <Link
-                  href={`/fabrics?category=${encodeURIComponent(category)}`}
-                  className="hover:text-green-900 transition"
+                  href={`/fabrics?category=${encodeURIComponent(fabric.value)}`}
+                  className="hover:text-mauve-500 transition"
                 >
-                  {category.charAt(0).toUpperCase() +
-                    category.slice(1).toLowerCase()}
+                  {fabric.label}
                 </Link>
               </li>
             ))}
-          </ul> */}
+          </ul>
         </div>
         <div className="flex flex-col items-start md:items-end md:pr-20">
           <h3 className="text-lg font-semibold mb-2">Follow Us</h3>
@@ -82,7 +72,7 @@ export default function Footer() {
                   aria-label={social.name}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-lime-400 transition"
+                  className="hover:text-red-400 transition"
                 >
                   {social.icon}
                 </a>
